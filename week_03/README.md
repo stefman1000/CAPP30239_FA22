@@ -11,6 +11,8 @@ Main data points: Race, Immigration Status, Urban/Rural, and recent migration st
 
 Census changed the ACS variables it collects many times over the decades, some variables not avialable or changed/incompatable between years (not an issue post 2000, big issue beforehand)
 
+Data is MASSIVE, had to compress it to upload to git
+
 Primary Data Source
 
 

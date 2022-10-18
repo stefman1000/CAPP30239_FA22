@@ -16,3 +16,8 @@ Data is MASSIVE, had to compress it to upload to git
 Primary Data Source
 
 
+Homework Assignment
+
+Bar chart using Chicago libary data, showing which locations get how many visits
+
+

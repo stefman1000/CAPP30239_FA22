@@ -9,32 +9,65 @@ const svg = d3.select("#chart")
     .attr("viewBox", [0, 0, width, height]);
 
 d3.csv('long-term-interest-monthly.csv').then(data => {
-    
-    //TYPE HERE
-    
-    // svg.append("g")
-    //   .attr("transform", `translate(0,${height - margin.bottom})`)
-    //   .call(d3.axisBottom(x));
-    
-    // svg.append("g")
-    //   .attr("transform", `translate(${margin.left},0)`)
-    //   .call(d3.axisLeft(y));
 
-    // svg.append("text")
-    //   .attr("class", "x-label")
-    //   .attr("text-anchor", "end")
-    //   .attr("x", width - margin.right)
-    //   .attr("y", height)
-    //   .attr("dx", "0.5em")
-    //   .attr("dy", "-0.5em") 
-    //   .text("Year");
+    let timeParse = d3.timeParse("%Y-%m");
+
+    for (let d of data) {
+        d.Value = +d.Value;
+        d.Date = timeParse(d.Date);
+    };
+
+    console.log(data);
     
-    // svg.append("text")
-    //   .attr("class", "y-label")
-    //   .attr("text-anchor", "end")
-    //   .attr("x", -margin.top/2)
-    //   .attr("dx", "-0.5em")
-    //   .attr("y", 10)
-    //   .attr("transform", "rotate(-90)")
-    //   .text("Interest rate");
+    let x = d3.scaleTime()
+        .domain(d3.extent(data, d => d.Date))
+        .range([margin.left, width - margin.right]);
+
+    let y = d3.scaleLinear()
+        .domain([0, d3.max(data, d => d.Value)])          // returns an array
+        .range([height - margin.bottom, margin.top]);
+
+    svg.append("g")
+        .attr("transform", `translate(${margin.left},0)`)
+        .attr("class", "y-axis")
+        .call(d3.axisLeft(y).tickFormat(d => d + "%").tickSizeOuter(0).tickSize(-width));
+        //.call(d3.axisLeft(y).tickSizeOuter(0).tickFormat(d => d + "%"));
+
+    svg.append("g")
+      .attr("transform", `translate(0,${height - margin.bottom})`)
+      .call(d3.axisBottom(x).tickSizeOuter(0));
+    
+    
+
+    svg.append("text")
+      .attr("class", "x-label")
+      .attr("text-anchor", "end")
+      .attr("x", width - margin.right)
+      .attr("y", height)
+      .attr("dx", "0.5em")
+      .attr("dy", "-0.5em") 
+      .text("Year");
+    
+    svg.append("text")
+      .attr("class", "y-label")
+      .attr("text-anchor", "end")
+      .attr("x", -margin.top/2)
+      .attr("dx", "-0.5em")
+      .attr("y", 10)
+      .attr("transform", "rotate(-90)")
+      .text("Interest rate");
+
+    let line = d3.line()
+        .x(d => x(d.Date))
+        .y(d => y(d.Value))
+        .curve(d3.curveNatural);
+
+
+    svg.append("path")
+        .datum(data)
+        .attr("d", line)
+        .attr("fill", "none")
+        .attr("stroke", "steelblue");
+    
+    
   });

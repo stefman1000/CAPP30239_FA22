@@ -44,6 +44,7 @@
       
       //protein,carbs,fiber
       const subgroups = data.columns.slice(1);
+      console.log(subgroups)
 
       const color = d3.scaleOrdinal(subgroups,['#e41a1c','#377eb8','#4daf4a']);
     
@@ -81,6 +82,8 @@
         .attr("x", (d, i) => (20 + (i * 75)))
         .attr("y",15)
         .text((d, i) => subgroups[i]);
+
+      console.log(stackedData);
     });
     
     </script>

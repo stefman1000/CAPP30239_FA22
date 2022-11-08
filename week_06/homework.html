@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MSCAPP Homeowrk 3</title>
+  <link href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,600" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  
+  
+
+</head>
+
+<body>
+  <div class="container">
+    <h1>Police Shootings by Race</h1>
+    <p>This page shows how ring charts can be reused using a function with 
+      unique data.
+    </p>
+    <div id="chart1" class="ring"></div>
+  </div>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script> 
+    d3.json('a3cleanedonly2015.json').then((data) => {
+    const height = 600,
+      width = 800,
+      innerRadius = 100,
+      outerRadius = 175,
+      labelRadius = 200;
+  
+
+    // var groupedData = d3.group(data, d => d.Race);
+    // console.log(groupedData.keys());
+    
+    var RaceCount = d3.flatRollup(data, v => v.length, d => d.Race ) ;
+    var Races = RaceCount.map(d => d[0]); // [ 'a1', 'b1', 'c1' ]
+    var RaceNums = RaceCount.map(d => d[1]); // [ 'a2', 'b2', 'c2' ] 
+    
+    // console.log(RaceCount);
+    // console.log(Races);
+    // console.log(RaceNums);
+
+   // Race = Object.fromEntries(RaceCount)   // each of cities.keys(): each of cities.values()
+
+    var Race = RaceCount.map(x => ({ 
+        Race: x[0], 
+        Num: x[1] 
+      }));
+      
+    console.log(Race);
+    
+    
+   
+    const arcs = d3.pie().value(d => d.Num)(Race);
+   
+    console.log(arcs);
+    const arc = d3.arc().innerRadius(innerRadius).outerRadius(outerRadius);
+    const arcLabel = d3.arc().innerRadius(labelRadius).outerRadius(labelRadius);
+  
+    var  svg = d3.select("#chart1")
+      .append("svg")
+      .attr("width", width)
+      .attr("height", height)
+      .attr("viewBox", [-width / 2, -height / 2, width, height])
+      .attr("style", "max-width: 100%; height: auto; height: intrinsic;");
+  
+    svg.append("g")     // makes white seperators between arcs
+      .attr("stroke", "white")
+      .attr("stroke-width", 2)
+      .attr("stroke-linejoin", "round")
+      .selectAll("path")        // begin data join, put data into buckets
+      .data(arcs)
+      .join("path")
+      .attr("fill", (d, i) => d3.schemeCategory10[i])
+      .attr("d", arc);
+  
+    svg.append("g")
+      .attr("font-size", 10)
+      .attr("text-anchor", "middle")
+      .selectAll("text")
+      .data(arcs)
+      .join("text")
+      .attr("transform", d => `translate(${arcLabel.centroid(d)})`)
+      .selectAll("tspan")     // creates a break in the line
+      .data(d => {
+        return [d.data.Race, d.data.Num];
+      })
+      .join("tspan")
+      .attr("x", 0)
+      .attr("y", (d, i) => `${i * 1.1}em`)
+      .attr("font-weight", (d, i) => i ? null : "bold")
+      .text(d => d);
+  
+    svg.append("text")
+      .attr("font-size", 30)
+      .attr("font-weight", "bold")
+      .attr("text-anchor", "middle")
+      .attr("alignment-baseline", "middle")
+      .text("2015")
+      .style("font-size", 20);
+
+
+    
+    const labelHeight = 18
+
+    svg.append("g")
+      .append('g')
+      .attr('transform', `translate(${outerRadius * 20 + 20},00)`);
+  
+    svg.append("g")
+      .selectAll(null)
+      .data(arcs)
+      .enter()
+      .append('rect')
+      .attr('y', d => labelHeight * d.index * 1.8)
+      .attr('width', labelHeight )
+      .attr('height', labelHeight)
+      .attr('x', labelHeight * 13)
+      .attr('fill', d => d3.schemeCategory10[d.index])
+      .attr('stroke', 'grey')
+      .style('stroke-width', '1px');
+  
+    svg.append("g")
+      .selectAll(null)
+      .data(arcs)
+      .enter()
+      .append('text')
+      .text(d => d.data.Race)
+      .attr('x', labelHeight * 14)
+      .attr('y', d => labelHeight * d.index * 1.8 + labelHeight)
+      .style('font-family', 'sans-serif')
+      .style('font-size', `${labelHeight}px`);
+  
+    return svg.node();
+  }); 
+    </script>
+
+    
+
+
+    <div class="container">
+        <h1>Police Shootings by Time of Year</h1>
+        <p>This page shows how ring charts can be reused using a function with 
+          unique data.
+        </p>
+        <div id="chart2" class="scatter"></div>
+      </div>
+      <script src="https://d3js.org/d3.v7.min.js"></script>
+      <script> 
+        const height = 500,
+        width = 800,
+        margin = ({ top: 15, right: 30, bottom: 35, left: 40 });
+    
+     svg = d3.select("#chart2")
+    .append("svg")
+    .attr("viewBox", [0, 0, width, height]);
+
+    d3.json('a3cleanedonly2015.json').then((data) => {
+    let timeParse = d3.timeParse("%m/%d/%Y");
+
+    for (let d of data) {
+        d.Age = +d.Age;
+        d.Date = timeParse(d.Date);
+    };
+
+    
+    
+  let x = d3.scaleTime()
+  .domain(d3.extent(data, d => d.Date))
+  .range([margin.left, width - margin.right]);
+
+    let y = d3.scaleLinear()
+  .domain(d3.extent(data, d => d.Age)).nice()
+  .range([height - margin.bottom, margin.top]);
+
+    svg.append("g")
+  .attr("transform", `translate(0,${height - margin.bottom})`)
+  .attr("class", "x-axis")
+  .call(d3.axisBottom(x).tickSizeOuter(0));
+  //.call(d3.axisBottom(x).tickFormat(d => ().tickSize(-height + margin.top + margin.bottom))
+
+
+
+
+
+
+svg.append("g")
+  .attr("transform", `translate(${margin.left},0)`)
+  .attr("class", "y-axis")
+  .call(d3.axisLeft(y).tickSize(-width + margin.left + margin.right))
+
+svg.append("g")
+  .attr("fill", "black")
+  .selectAll("circle")
+  .data(data)
+  .join("circle")
+  .attr("cx", d => x(d.Date))
+  .attr("cy", d => y(d.Age))
+  .attr("r", 2)
+  .attr("opacity", 0.75);
+
+const tooltip = d3.select("body").append("div")
+  .attr("class", "svg-tooltip")
+  .style("position", "absolute")
+  .style("visibility", "hidden");
+
+d3.selectAll("circle")
+  .on("mouseover", function(event, d) {
+    d3.select(this).attr("fill", "red");
+    tooltip
+      .style("visibility", "visible")
+      .html(`Name: ${d.Name}<br />Gender: ${d.Gender}<br /> Armed: ${d.Armed}`);
+  })
+  .on("mousemove", function(event) {
+    tooltip
+      .style("top", (event.pageY - 10) + "px")
+      .style("left", (event.pageX + 10) + "px");
+  })
+  .on("mouseout", function() {
+    d3.select(this).attr("fill", "black");
+    tooltip.style("visibility", "hidden");
+  })
+  
+});
+    </script>
+
+
+<div class="container">
+        <h1>Police Shootings by Race</h1>
+        <p>This page shows how ring charts can be reused using a function with 
+          unique data.
+        </p>
+        <div id="chart3" class="line"></div>
+      </div>
+      <script src="https://d3js.org/d3.v7.min.js"></script>
+      <script> 
+        
+   
+    d3.json('a3cleanedonly2015.json').then((data) => {
+
+    
+        const svg = d3.select("#chart3")
+            .append("svg")
+            .attr("viewBox", [0, 0, width, height]);
+
+    var RaceCount = d3.flatRollup(data, v => v.length, d => d.Race, d => d.Mental_illness ) ;
+    var nested_data = d3.rollup(data, v => v.filter(Boolean).length,  d => d.Race, d => d.Mental_illness)
+     
+    console.log(nested_data)
+
+        
+
+    var Races = RaceCount.map(d => d[0]); // [ 'a1', 'b1', 'c1' ]
+    var RaceNums = RaceCount.map(d => d[2]); // [ 'a2', 'b2', 'c2' ] 
+    var RaceIllness = RaceCount.map(d => d[1]);
+    
+    
+
+   // Race = Object.fromEntries(RaceCount)   // each of cities.keys(): each of cities.values()
+
+    var Race = RaceCount.map(x => ({ 
+        Race: x[0], 
+        MentalIllness: x[1],
+        NoMentalIllness: x[2]
+
+      }));
+    console.log(nested_data.keys())
+    console.log(RaceCount)
+
+
+let x = d3.scaleBand(Race.map(d => (d.Race)),[margin.left, width - margin.right])
+  .padding([0.2]);
+
+  let y = d3.scaleLinear()
+  .domain(d3.extent(Race, d => d.Num)).nice()
+  .range([height - margin.bottom, margin.top]);
+
+
+svg.append("g")
+  .attr("transform", `translate(0,${height - margin.bottom})`)
+  .call(d3.axisBottom(x))
+
+svg.append("g")
+  .attr("transform", `translate(${margin.left},0)`)
+  .call(d3.axisLeft(y).tickSize(-width + margin.left + margin.right))
+
+//protein,carbs,fiber
+const subgroups  = nested_data.keys();
+console.log(subgroups)
+
+const color = d3.scaleOrdinal(subgroups,['#e41a1c','#377eb8']);
+
+const stackedData = d3.stack()
+  .keys(subgroups)(nested_data);
+
+svg.append("g")
+  .selectAll("g")
+  .data(stackedData)
+  .join("g")
+  .attr("fill", d => color(d.key))
+  .selectAll("rect")
+  .data(d => d)
+  .join("rect")
+  .attr("x", d => x(d.nested_data))
+  .attr("height", d => y(d[0]) - y(d[1]))
+  .attr("width",x.bandwidth());
+
+let legendGroup = svg
+  .selectAll(".legend-group")
+  .data(subgroups)
+  .join("g")
+  .attr("class", "legend-group");
+
+legendGroup
+  .append("circle")
+  .attr("cx", (d, i) => (10 + (i * 75)))
+  .attr("cy",10)
+  .attr("r", 3)
+  .attr("fill", (d, i) => color(i));
+
+legendGroup
+  .append("text")
+  .attr("x", (d, i) => (20 + (i * 75)))
+  .attr("y",15)
+  .text((d, i) => subgroups[i]);
+
+console.log(stackedData);
+});
+
+       
+      </script>
+    
+        
+    
+
+
+
+
+    
+    
+        
+    
+    
+
+</html>

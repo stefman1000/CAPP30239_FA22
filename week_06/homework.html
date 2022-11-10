@@ -245,7 +245,7 @@ d3.selectAll("circle")
             .append("svg")
             .attr("viewBox", [0, 0, width, height]);
 
-    var RaceCount = d3.flatRollup(data, v => v.length, d => d.Race, d => d.Mental_illness ) ;
+    var RaceCount = d3.flatRollup(data, v => v.filter(Boolean).length, d => d.Race, d => d.Mental_illness ) ;
     var nested_data = d3.rollup(data, v => v.filter(Boolean).length,  d => d.Race, d => d.Mental_illness)
      
     console.log(nested_data)
@@ -262,12 +262,14 @@ d3.selectAll("circle")
 
     var Race = RaceCount.map(x => ({ 
         Race: x[0], 
-        MentalIllness: x[1],
-        NoMentalIllness: x[2]
+        HasMentalIllness: nested_data.get(x[0]).get(true),
+        NoMentalIllness: nested_data.get(x[0]).get(false)
 
       }));
-    console.log(nested_data.keys())
-    console.log(RaceCount)
+
+    // Race.remove('Asian')
+    console.log(nested_data.entries())
+    console.log(Race)
 
 
 let x = d3.scaleBand(Race.map(d => (d.Race)),[margin.left, width - margin.right])
@@ -287,13 +289,24 @@ svg.append("g")
   .call(d3.axisLeft(y).tickSize(-width + margin.left + margin.right))
 
 //protein,carbs,fiber
-const subgroups  = nested_data.keys();
+const subgroups  = ['HasMentalIllness','NoMentalIllness'];
 console.log(subgroups)
 
 const color = d3.scaleOrdinal(subgroups,['#e41a1c','#377eb8']);
 
-const stackedData = d3.stack()
-  .keys(subgroups)(nested_data);
+const stackedGen = d3.stack()
+  .keys(subgroups);
+
+const key = 'Race';
+const unique = [...new Map(Race.map(item => [item[key], item])).values()]
+console.log(unique)
+  
+
+const stackedData = stackedGen(unique)
+console.log(stackedData);
+console.log(stackedData[1][0].data.Race);
+console.log(stackedData[1][0].data.NoMentalIllness - stackedData[1][0].data.HasMentalIllness)
+
 
 svg.append("g")
   .selectAll("g")
@@ -303,8 +316,11 @@ svg.append("g")
   .selectAll("rect")
   .data(d => d)
   .join("rect")
-  .attr("x", d => x(d.nested_data))
-  .attr("height", d => y(d[0]) - y(d[1]))
+  .attr("x", d => x(d.data.Race))
+  console.log(stackedData[1][0].data.Race)
+  .attr("y", d => y(d.data.HasMentalIllness))
+  //.attr("height", d => y(d[1][0].data.NoMentalIllness) - y(d[1][0].data.HasMentalIllness))
+  .attr("height", d => y(d[1][0].data.NoMentalIllness - d[1][0].data.HasMentalIllness))
   .attr("width",x.bandwidth());
 
 let legendGroup = svg
@@ -326,7 +342,7 @@ legendGroup
   .attr("y",15)
   .text((d, i) => subgroups[i]);
 
-console.log(stackedData);
+
 });
 
        

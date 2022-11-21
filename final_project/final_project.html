@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,700" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .row {
+      column-count: 2;
+    }
+
+    #legend {
+      margin: 30px 0px 50px;
+    }
+
+    #legend svg {
+      margin: 0 auto;
+    }
+
+    .svg-tooltip {
+      background: rgba(69, 77, 93, .9);
+      border-radius: 5px;
+      color: #fff;
+      display: block;
+      font-size: 12px;
+      line-height: 16px;
+      text-transform: none;
+      max-width: 320px;
+      padding: 1rem;
+      position: absolute;
+      text-overflow: ellipsis;
+      white-space: pre;
+      z-index: 300;
+      visibility: hidden;
+    }
+    
+    .chart, .chart p, .chart span {
+      width: 100%;
+      font-size: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Chicago Crime by Year and Community Area</h1>
+    <p>
+        Total Crime
+        Crime data sourced from 
+        <a href="https://data.cityofchicago.org/Public-Safety/Crimes-2001-to-Present/ijzp-q8t2/data">
+        Chicago Data Portal</a>.
+        Map built using <a href="https://data.cityofchicago.org/Facilities-Geographic-Boundaries/Boundaries-Community-Areas-current-/cauq-8yn6">
+        Chicago Data GeoJSON</a> with <a href="https://mapshaper.org/">
+        mapshaper.</a>
+        Population counts from latest census number as posted
+        on <a href="https://en.wikipedia.org/wiki/Community_areas_in_Chicago">
+          Wikipedia</a>.
+
+
+        
+          <label>
+            Year:
+            <select>
+              <option value="2022">2022</option>
+              <option value="2021">2021</option>
+              <option value="2020">2020</option>
+              <option value="2019">2019</option>
+              <option value="2018">2018</option>
+              <option value="2017">2017</option>
+              <option value="2016">2016</option>
+              <option value="2015">2015</option>
+              <option value="2014">2014</option>
+              <option value="2013">2013</option>
+              <option value="2012">2012</option>
+              <option value="2011">2011</option>
+              <option value="2010">2010</option>
+              <option value="2009">2009</option>
+              <option value="2008">2008</option>
+              <option value="2007">2007</option>
+
+              
+            </select>
+             </label>
+        
+    </p>
+    <div id="legend"></div>
+    <div id="row1" class="row"></div>
+    <div id="row2" class="row"></div>
+  </div>
+</body>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="libs/d3-color-legend.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<script src="final_project.js"></script>
+
+<div class="container">
+  <h1>Unemployment Rates Reached an All-time High During the Height of the Pandemic</h1>
+  <p>
+      Unemployment Rate in the US averaged 5.74 
+      percent from 1948 until 2022. In April of 2020, unemployment rate hit a high of 14.70 percent.
+      The following data comes from the <a href="https://www.bls.gov/lau/">Bureau of Labor Statistics</a>.
+  </p>
+  <div id="legend"></div>
+  <div id="chart"></div>
+</div>
+<script src="final_project_1.js"></script>
+
+
+<div class="container">
+  <h1>Unemployment Rates Reached an All-time High During the Height of the Pandemic</h1>
+  <p>
+      Unemployment Rate in the US averaged 5.74 
+      percent from 1948 until 2022. In April of 2020, unemployment rate hit a high of 14.70 percent.
+      The following data comes from the <a href="https://usa.ipums.org/usa/index.shtml">IPUMS Data Selector for the US Census Bureau ACS</a>.
+  </p>
+  <div id="legend"></div>
+  <div id="chart"></div>
+</div>
+<script src="final_project_2.js"></script>
+
+</html>

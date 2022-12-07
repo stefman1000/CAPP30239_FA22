@@ -76,7 +76,7 @@ Promise.all([
 
    updateChart(2021);
   
-   d3.selectAll("select")
+   d3.select("select")
      .on("change", function (event) {
        const i = parseInt(event.target.value);
        updateChart(i);

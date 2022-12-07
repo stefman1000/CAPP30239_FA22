@@ -11,10 +11,20 @@ df =  pd.read_csv("final_project/chicago_crime.csv")
 
 #grouped = df.groupby("Community Area", axis="columns")
 
-grouped = df.groupby(["Year", "Community Area"])
+#grouped = df.groupby(["Year", "Community Area"])
+
+
+#counts = grouped.size()
+
+
+#out = counts.to_dict()
+
+
+grouped = df.groupby(["Year", "Description"])
 
 
 counts = grouped.size()
+print(counts)
 
 
 out = counts.to_dict()
@@ -23,24 +33,33 @@ out = counts.to_dict()
 result = {}
 
 years = set()
-ca = set()
+normal_crimes = set()
+gun_crimes = set()
 for k,v in out.items():
      years.add(k[0])
-     ca.add(k[1])
-     result[k[0]] = {}
+     if "GUN" in k[1] or "FIREARM" in k[1] or 'HANDGUN' in k[1] or 'RIFLE' in k[1]:
+        gun_crimes.add(k[1])
+     else:
+        normal_crimes.add(k[1])
+      
+     result[k[0]] = {"Category": "Gun Crimes"},{"Category": "Normal Crimes"}
 
-print(years)
-print(ca)
+#print('normal crimes: ' + str(normal_crimes))
+#print('gun crimes: ' + str(gun_crimes))
 
 
 for k,v in out.items():
-     result[int(k[0])][int(k[1])] = {"crimes":v}
-##print(result)
+
+     if "GUN" in k[1] or "FIREARM" in k[1] or 'HANDGUN' in k[1] or 'RIFLE' in k[1]:
+        result[k[0]][0]["Amount"] = result[k[0]][0].get("Amount",0) + v
+     else:
+        result[k[0]][1]["Amount"] = result[k[0]][1].get("Amount",0) + v
+print(result)
 
 
 
 
-with open("final_project/chicago_crime.json", "w") as outfile:
+with open("final_project/chicago_crime_dscpt.json", "w") as outfile:
      json.dump(result, outfile)
 #counts.to_json(r"final_project/chicago_crime.json", orient = 'index')
 
@@ -59,14 +78,14 @@ grouped1 = df.groupby(["Year"])
 
 
 counts = grouped1.size()
-print(df1)
-print(counts)
+# print(df1)
+# print(counts)
 joined = df1.merge(counts.rename('counts'),left_on='Year', right_on='Year')
 
 
 joined['mig_pct'] = joined['Migration']/(joined['Pop'].astype(int))*100
 joined['crime_rate'] = joined['counts']/(joined['Pop'].astype(int))*100
-print(joined)
+# print(joined)
 
 joined.to_csv('final_project/migration_clean.csv')
 

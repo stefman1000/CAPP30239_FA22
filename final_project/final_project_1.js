@@ -1,118 +1,116 @@
-// Histogram & Joins
+let svg2 = d3.select("#chart2")
+  .append("svg")
+  .attr("viewBox", [0, 0, width, height]);
+margin = ({ top: 15, right: 250, bottom: 35, left: 40 });
 
-const height = 400,
-    width = 600,
-    margin = ({ top: 25, right: 10, bottom: 50, left: 10 }),
-    padding = 1;
+d3.csv("migration_clean.csv").then(data => {
+  let timeParse = d3.timeParse("%Y");
 
-const svg = d3.select("#chart")
-    .append("svg")
-    .attr("viewBox", [0, 0, width, height]);
 
-d3.csv('chicago_crime.csv').then((data) => {    
-    var groupedData = d3.rollups(data, v => v.length, d => d.year, d => d.CommunityArea)  
-    console.log(groupedData)
+  for (let d of data) {
+    d.Year = timeParse(d.Year);
+    d.med_house_change = +d.med_house_change;
+    d.mig_pct = +d.mig_pct
+    d.crime_rate = +d.crime_rate
     
-    const x = d3.scaleLinear()
-        .range([margin.left, width - margin.right])
-        .domain([0,65]);
+  }
+
   
-    const y = d3.scaleLinear()
-        .range([height - margin.bottom, margin.top])
-        .domain([0,10]);
+  let x = d3.scaleTime()
+    .domain(d3.extent(data, d => d.Year))
+    .range([margin.left, width - margin.right]);
 
-    svg.append("g")
-        .attr("transform", `translate(0,${height - margin.bottom + 5})`)
-        .call(d3.axisBottom(x));
+  let y = d3.scaleLinear()
+    .domain(d3.extent(data, d => d.med_house_change))
+    .range([height - margin.bottom, margin.top]);
 
-    const binGroups = svg.append("g")
-        .attr("class", "bin-group");
+    var z = d3.scaleOrdinal(d3.schemeCategory10);
 
-    function updateChart(m) {
-        
-        console.log(groupedData)
-        const bins = d3.bin()
-            .thresholds(10)
-            .value(d => d3.d.average)(groupedData[m]);
+  svg2.append("g")
+    .attr("transform", `translate(0,${height - margin.bottom})`)
+    .call(d3.axisBottom(x));
 
-        binGroups.selectAll("g")
-            .data(bins, d => d.x0)
-        .join(
-            enter => {
-            let g = enter.append("g")
+  svg2.append("g")
+    .attr("transform", `translate(${margin.left},0)`)
+    .call(d3.axisLeft(y).tickSize(-innerWidth).tickFormat(d => d + "%"));
 
-            g.append("rect")
-                .attr("x", d => x(d.x0) + padding / 2)
-                .attr("y", height - margin.bottom)
-                .attr("width", d => x(d.x1) - x(d.x0) - padding)
-                .attr("height", 0)
-                .attr("fill", "steelblue")
-                .transition()
-                .duration(750)
-                .attr("y", d => y(d.length))
-                .attr("height", d => height - margin.bottom - y(d.length));
+  let datasets = [data.mig_pct, data.med_house_change,data.crime_rate ]
+  
 
-            g.append("text")
-                .text(d => d.length)
-                .attr("x", d => x(d.x0) + (x(d.x1) - x(d.x0)) / 2)
-                .attr("y", height - margin.bottom - 5)
-                .attr("text-anchor", "middle")
-                .attr("fill", "#333")
-                .transition()
-                .duration(750)
-                .attr("y", d => y(d.length) - 5);
-            },
-            update => {
-            update.select("rect")
-                .transition()
-                .duration(750)
-                .attr("y", d => y(d.length))
-                .attr("height", d => height - margin.bottom - y(d.length));
+  let line = d3.line()
+    .x(d => x(d.Year))
+    .y(d => y(d.mig_pct));
 
-            update.select("text")
-                .text(d => d.length)
-                .transition()
-                .duration(750)
-                .attr("y", d => y(d.length) - 5);
-            },
-            exit => {
-            exit.select("rect")
-                .transition()
-                .duration(750)
-                .attr("height", 0)
-                .attr("y", height - margin.bottom);
+    let line2 = d3.line()
+    .x(d => x(d.Year))
+    .y(d => y(d.med_house_change));
 
-            exit.select("text")
-                .text("");
+    let line3 = d3.line()
+    .x(d => x(d.Year))
+    .y(d => y(d.crime_rate));
 
-            exit.transition()
-                .duration(750)
-                .remove();
-            }
-        );
+ 
+  
+    let g = svg2.append("g")
+      .attr("class", "data")
+      .on('mouseover', function () {
+        d3.selectAll(".highlight").classed("highlight", false);
+        d3.select(this).classed("highlight", true);
+      });
 
-        svg.selectAll("foreignObject").remove();
+    // if (dataset === mig_pct) {
+    //   g.classed("highlight", true);
+    // }
 
-        let temp = d3.mean(data[m], d => d.average).toFixed(1);
-        let str = `The average temperature in 
-                    <b style="text-transform:capitalize;">${m} 2020</b> was 
-                    <b>${temp}℉</b>.`
+    g.append("path")
+      .datum(data)
+      .attr("fill", "none")
+      .attr("stroke", "#ccc")
+      .attr("d", line)
 
-        svg.append("foreignObject")
-          .attr("x", 10)
-          .attr("y", 100)
-          .attr("width", 120)
-          .attr("height", 100)
-          .append('xhtml:div')
-          .append("p")
-          .html(str);
-    }
+    g.append("path")
+      .datum(data)
+      .attr("fill", "none")
+      .attr("stroke", "#800000")
+      .attr("d", line2)
+    console.log(data)
 
-    updateChart("2022");
+    g.append("path")
+      .datum(data)
+      .attr("fill", "none")
+      .attr("stroke", "#800080	")
+      .attr("d", line3)
 
-    d3.selectAll("select")
-        .on("change", function (event) {
-            const m = event.target.value;
-            updateChart(m); 
-        });
+    let lastEntry = data[data.length - 1]; //last piece of data to position text x and y
+
+    g.append("text")
+      .text('percent net migration flow')
+      .attr("x", x(lastEntry.Year) + 3)
+      .attr("y", y(lastEntry.mig_pct))
+      .attr("dominant-baseline", "middle")
+      .attr("fill", "#999");
+
+    console.log(data)
+     lastEntry = data[data.length - 1]; //last piece of data to position text x and y
+
+    g.append("text")
+      .text('median house price change')
+      .attr("x", x(lastEntry.Year) + 3)
+      .attr("y", y(lastEntry.med_house_change))
+      .attr("dominant-baseline", "middle")
+      .attr("fill", "#800000");
+
+
+
+    lastEntry = data[data.length - 1]; //last piece of data to position text x and y
+
+
+    g.append("text")
+      .text('crime rate')
+      .attr("x", x(lastEntry.Year) + 3)
+      .attr("y", y(lastEntry.crime_rate))
+      .attr("dominant-baseline", "middle")
+      .attr("fill", "#800080");
+  
+  
 });

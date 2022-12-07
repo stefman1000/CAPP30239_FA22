@@ -7,7 +7,7 @@ const tooltip = d3.select("body")
 const height = 610,
   width = 975;
 
-const svg = d3.select("#chart")
+let svg = d3.select("#chart1")
   .append("svg")
   .attr("viewBox", [0, 0, width, height]);
 
@@ -17,10 +17,12 @@ Promise.all([
 ]).then(([data, chicagoTopology]) => {
 
   const radius = d3.scaleLinear()
-    .domain([0, d3.max(Object.values(data), d => d.crimeDensity)])
+    .domain([0, 13000])
     .range([0, 25]);
+  console.log(data)
 
   const communities = topojson.feature(chicagoTopology, chicagoTopology.objects.chicago);
+  console.log(communities)
   const mesh = topojson.mesh(chicagoTopology, chicagoTopology.objects.chicago);
   const projection = d3.geoMercator()
     .fitSize([width, height], mesh);
@@ -34,7 +36,7 @@ Promise.all([
     .attr("fill", "#efefef")
     .attr("d", path)
 
-  // function updateChart(year) {
+   function updateChart(year) {
 
   
 
@@ -45,15 +47,22 @@ Promise.all([
     .attr("stroke", '#ccc')
     .attr("fill", "brown")
     .attr("opacity", 0.75)
-    .attr("r", d => radius(data[d.properties.area_numbe].crimes))
+    //console.log(`${communities.features.properties.area_numbe}`)
+    //console.log(data[year].get(communities.features.properties.area_numbe).crimes)
+    .attr("r", d => radius(data[year][d.properties.area_numbe].crimes  ))
+    //console.log(data[year]) 
+
+    //console.log(`${communities.features.properties.area_numbe}`)
     .attr("transform", d => `translate(${path.centroid(d)})`)
     .on("mousemove", function (event, d) {
       let community = d.properties.community;
-      let stats = data[d.properties.area_numbe];
+      let stats = data[year][d.properties.area_numbe].crimes;
+      console.log(community);
+    
 
       tooltip
         .style("visibility", "visible")
-        .html(`${community}<br>Crime Count: ${stats.crimes}`)
+        .html(`${community}<br>Crime Count: ${stats}`)
         .style("top", (event.pageY - 10) + "px")
         .style("left", (event.pageX + 10) + "px");
       d3.select(this).attr("fill", "goldenrod");
@@ -63,13 +72,13 @@ Promise.all([
       d3.select(this).attr("fill", 'brown');
     });
 
-  //}
+  }
 
-  // updateChart(2002);
+   updateChart(2021);
   
-  // d3.selectAll("select")
-  //   .on("change", function (event) {
-  //     const i = parseInt(event.target.value);
-  //     updateChart(i);
-  //   });
+   d3.selectAll("select")
+     .on("change", function (event) {
+       const i = parseInt(event.target.value);
+       updateChart(i);
+     });
 });

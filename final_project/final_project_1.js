@@ -1,4 +1,4 @@
-let svg2 = d3.select("#chart2")
+const svg2 = d3.select("#chart2")
   .append("svg")
   .attr("viewBox", [0, 0, width, height]);
 margin = ({ top: 15, right: 250, bottom: 35, left: 40 });
@@ -65,7 +65,7 @@ d3.csv("migration_clean.csv").then(data => {
     g.append("path")
       .datum(data)
       .attr("fill", "none")
-      .attr("stroke", "#ccc")
+      .attr("stroke", "#0000FF	")
       .attr("d", line)
 
     g.append("path")
@@ -88,9 +88,8 @@ d3.csv("migration_clean.csv").then(data => {
       .attr("x", x(lastEntry.Year) + 3)
       .attr("y", y(lastEntry.mig_pct))
       .attr("dominant-baseline", "middle")
-      .attr("fill", "#999");
+      .attr("fill", "#0000FF	");
 
-    console.log(data)
      lastEntry = data[data.length - 1]; //last piece of data to position text x and y
 
     g.append("text")

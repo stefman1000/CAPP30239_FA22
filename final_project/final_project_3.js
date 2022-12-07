@@ -32,10 +32,10 @@ d3.json("chicago_crime_dscpt.json").then((data) => {
         var arc = d3.arc().innerRadius(innerRadius).outerRadius(outerRadius);
         var arcLabel = d3.arc().innerRadius(labelRadius).outerRadius(labelRadius);
         console.log(arcs);
-        console.log(data)
-      
+        d3.select("#Ring123").remove(); 
         const svg4 = d3.select("#chart4")
           .append("svg")
+          .attr("id","Ring123")
           .attr("width", width)
           .attr("height", height)
           .attr("viewBox", [-width / 2, -height / 2, width, height])
@@ -75,6 +75,9 @@ d3.json("chicago_crime_dscpt.json").then((data) => {
           .attr("alignment-baseline", "middle")
           .text(year)
           .style("font-size", 20);
+
+
+          
       });
   }
 

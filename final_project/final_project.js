@@ -9,6 +9,7 @@ const height = 610,
 
 let svg = d3.select("#chart1")
   .append("svg")
+  .attr("id", "Map")
   .attr("viewBox", [0, 0, width, height]);
 
 Promise.all([
@@ -38,8 +39,7 @@ Promise.all([
 
    function updateChart(year) {
 
-  
-
+  svg.selectAll("circle").remove()
   svg.append("g")
     .selectAll("circle")
     .data(communities.features)

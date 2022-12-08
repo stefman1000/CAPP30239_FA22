@@ -13,7 +13,7 @@ d3.csv("fox_data.csv").then(data => {
     
     
 
-    let svg = d3.select("#chart3")
+    let svg5 = d3.select("#chart3")
         .append("svg")
         .attr("viewBox", [0,0, width, height ]);
 
@@ -35,13 +35,13 @@ d3.csv("fox_data.csv").then(data => {
         .call(d3.axisLeft(y).tickSizeOuter(0));
 
 
-    svg.append("g")
+    svg5.append("g")
         .call(xAxis);
 
-    svg.append("g")
+    svg5.append("g")
         .call(yAxis);
 
-    let bar = svg.selectAll(".bar")
+    let bar = svg5.selectAll(".bar")
         .append("g")
         .data(data)
         .join("g")
